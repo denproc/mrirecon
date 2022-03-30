@@ -1,8 +1,8 @@
 name: deployment to pypi
 
 on:
-  push:
-    branches: feature/ktsense
+  release:
+    types: [published]
 
 jobs:
   deploy:
