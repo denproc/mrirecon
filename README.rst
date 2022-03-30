@@ -6,8 +6,8 @@ MRI Reconstruction Toolbox offers a collection of the most common MRI reconstruc
 The Toolbox facilitates the usage of reconstruction methods as a part of Deep Learning pipelines in medical domain.
 Our package takes advantage of batched matrix operations, which can be performed on both CPU and GPU.
 
-Implemented algorithms
-^^^^^^^^^^^^^^^^^^^^^^
+Available Algorithms
+^^^^^^^^^^^^^^^^^^^^
 
 - SENSE reconstruction for parallel imaging (`pdf <https://onlinelibrary.wiley.com/doi/pdfdirect/10.1002/(SICI)1522-2594(199911)42:5%3C952::AID-MRM16%3E3.0.CO;2-S>`_)
 - kt-SENSE reconstruction for dynamic magnetic resonance imaging (MRI) (`pdf <https://onlinelibrary.wiley.com/doi/pdf/10.1002/mrm.10611>`_)
