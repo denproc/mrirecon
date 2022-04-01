@@ -90,7 +90,7 @@ def kt_sense(kt_acq: torch.Tensor, kt_trn: torch.Tensor, csm: torch.Tensor, nois
     M_2 = scale_factor ** 2 * torch.matmul(rho_prior, torch.conj(rho_prior.transpose(-1, -2)))
 
     if real_prior:
-        M_2 = M_2 * torch.eye(M_2.size(-1))
+        M_2 = M_2 * torch.eye(M_2.size(-1), device=M_2.device)
 
     prior = torch.matmul(M_2, sensitivity_h)
     prior = torch.matmul(sensitivity, prior)

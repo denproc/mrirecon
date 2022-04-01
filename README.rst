@@ -4,7 +4,7 @@ _____________________________________
 
 MRI Reconstruction Toolbox offers a collection of the most common MRI reconstruction algorithms implemented in PyTorch.
 The Toolbox facilitates the usage of reconstruction methods as a part of Deep Learning pipelines in medical domain.
-Our package takes advantage of batched matrix operations, which can be performed on both CPU and GPU.
+Our package takes advantage of batched matrix operations, which can be performed on both CPU and GPU devices.
 
 Available Algorithms
 --------------------
