@@ -145,8 +145,8 @@ def kt_sense(kt_acq: torch.Tensor, kt_trn: torch.Tensor, csm: torch.Tensor, nois
     n_b, n_coils, n_freq, n_H, n_W = kt_acq.size()
 
     kt_sampling_slice = kt_acq.sum(dim=(1, -1), keepdims=True) != 0
-    kt_sampling = kt_sampling_slice.sum(dim=0)
-    assert torch.all(n_b * kt_sampling_slice[0] == kt_sampling), \
+    kt_sampling = kt_sampling_slice.sum(dim=0) / n_b
+    assert torch.all(kt_sampling_slice[0] == kt_sampling), \
         f'In case of multiple slices, slices should have the same undersampling pattern'
     kt_bln = kt_acq.sum(dim=-3, keepdim=True) / kt_sampling.sum(dim=-3, keepdim=True)
     kt_diff = kt_acq - kt_bln * kt_sampling
