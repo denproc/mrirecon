@@ -16,7 +16,7 @@ r"""
 import torch
 
 
-def k2x(x: torch.Tensor, norm: str = 'ortho') -> torch.Tensor:
+def k2x(x: torch.Tensor, norm: str = None) -> torch.Tensor:
     r"""
     Transfers tensor from k-space into image space.
     Args:
@@ -31,7 +31,7 @@ def k2x(x: torch.Tensor, norm: str = 'ortho') -> torch.Tensor:
     return out
 
 
-def x2k(x: torch.Tensor, norm: str = 'ortho') -> torch.Tensor:
+def x2k(x: torch.Tensor, norm: str = None) -> torch.Tensor:
     r"""
     Transfers tensor from image space into k-space .
     Args:
@@ -46,7 +46,7 @@ def x2k(x: torch.Tensor, norm: str = 'ortho') -> torch.Tensor:
     return out
 
 
-def t2f(x: torch.Tensor, norm: str = 'ortho') -> torch.Tensor:
+def t2f(x: torch.Tensor, norm: str = None) -> torch.Tensor:
     r"""
     Transfers tensor from time domain into temporal frequency.
     Args:
@@ -61,7 +61,7 @@ def t2f(x: torch.Tensor, norm: str = 'ortho') -> torch.Tensor:
     return out
 
 
-def f2t(x: torch.Tensor, norm: str = 'ortho') -> torch.Tensor:
+def f2t(x: torch.Tensor, norm: str = None) -> torch.Tensor:
     r"""
     Transfers tensor from temporal frequency domain into time .
     Args:
@@ -76,13 +76,14 @@ def f2t(x: torch.Tensor, norm: str = 'ortho') -> torch.Tensor:
     return out
 
 
-def kt2xf(x: torch.Tensor, norm='ortho') -> torch.Tensor:
+def kt2xf(x: torch.Tensor, norm: str = None) -> torch.Tensor:
     r"""
     Transfers tensor from kt-space into xf-space, i.e. image temporal frequency domain.
 
     Args:
         x: input tensor with at least 3 axes. Fourier is applied to third dimension from the end.
             Inverse Fourier is applied to last two dimensions.
+        norm: normalisation, see torch.fft
 
     Returns:
         Tensor of the same dimensionality as input.
@@ -90,13 +91,14 @@ def kt2xf(x: torch.Tensor, norm='ortho') -> torch.Tensor:
     return t2f(k2x(x, norm=norm), norm=norm)
 
 
-def xf2kt(x: torch.Tensor, norm='ortho') -> torch.Tensor:
+def xf2kt(x: torch.Tensor, norm: str = None) -> torch.Tensor:
     r"""
     Transfers tensor from xf-space into kt-space.
 
     Args:
         x: input tensor with at least 3 axes. Inverse Fourier is applied to third dimension from the end.
             Fourier is applied to last two dimensions.
+        norm: normalisation, see torch.fft
 
     Returns:
         Tensor of the same dimensionality as input.
