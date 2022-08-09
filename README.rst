@@ -31,7 +31,7 @@ If you want to use the latest features straight from the master, clone `MRI Reco
 .. code-block:: sh
 
    git clone https://github.com/denproc/mrirecon.git
-   cd piq
+   cd mrirecon
    python setup.py install
 
 .. installation-section-end
