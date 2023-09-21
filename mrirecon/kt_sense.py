@@ -19,8 +19,15 @@ from mrirecon.functional.domain_conversion import kt2xf, k2x, x2k, f2t
 from mrirecon.sense import sense
 
 
-def slice_wise_kt_sense(kt_acq: torch.Tensor, kt_trn: torch.Tensor, csm: torch.Tensor, noise_cov: torch.Tensor,
-                        lambda_0: float = 0.0014, real_prior: bool = True, fft_norm: str = None) -> torch.Tensor:
+def slice_wise_kt_sense(
+    kt_acq: torch.Tensor,
+    kt_trn: torch.Tensor,
+    csm: torch.Tensor,
+    noise_cov: torch.Tensor,
+    lambda_0: float = 0.0014,
+    real_prior: bool = True,
+    fft_norm: str = None,
+) -> torch.Tensor:
     r"""kt-SENSE dynamic MRI reconstruction. The function performs dynamic MRI reconstruction from undersampled data
     using densely sampled prior, coil sensitivities and coil noise covariance matrix.
 
@@ -56,7 +63,9 @@ def slice_wise_kt_sense(kt_acq: torch.Tensor, kt_trn: torch.Tensor, csm: torch.T
     xf_diff = kt2xf(kt_diff, norm=fft_norm)
 
     xf_trn = kt2xf(kt_trn, norm=fft_norm)
-    xf_prior = sense(data=xf_trn[None], csm=csm[None], noise_cov=noise_cov, acceleration_rate=1)[0]
+    xf_prior = sense(
+        data=xf_trn[None], csm=csm[None], noise_cov=noise_cov, acceleration_rate=1
+    )[0]
     xf_prior[:, xf_prior.size(-3) // 2, :, :] = 0
 
     xf_sampling = kt2xf(kt_sampling, norm=fft_norm)
@@ -70,14 +79,14 @@ def slice_wise_kt_sense(kt_acq: torch.Tensor, kt_trn: torch.Tensor, csm: torch.T
 
     alias_sign = torch.sign(xf_sampling[:, mask_freq, mask_H, mask_W].real)
 
-    safety_margin = 1 / lambda_0 ** 0.5
+    safety_margin = 1 / lambda_0**0.5
     scale_factor = safety_margin
 
     xf_recon = torch.zeros_like(xf_prior)
 
     idx_H = torch.arange(int(n_H / n_aliases), device=csm.device)
 
-    alias_H = ((idx_H.view(1, -1, 1) - shift_H.view(1, 1, -1)) % n_H)
+    alias_H = (idx_H.view(1, -1, 1) - shift_H.view(1, 1, -1)) % n_H
     sensitivity = csm[:, 0, alias_H].permute(4, 2, 1, 0, 3)
     sensitivity_h = torch.conj(sensitivity.transpose(-1, -2))
 
@@ -87,14 +96,18 @@ def slice_wise_kt_sense(kt_acq: torch.Tensor, kt_trn: torch.Tensor, csm: torch.T
 
     rho_prior = xf_prior[:, alias_freq, alias_H].permute(4, 2, 1, 3, 0)
 
-    M_2 = scale_factor ** 2 * torch.matmul(rho_prior, torch.conj(rho_prior.transpose(-1, -2)))
+    M_2 = scale_factor**2 * torch.matmul(
+        rho_prior, torch.conj(rho_prior.transpose(-1, -2))
+    )
 
     if real_prior:
         M_2 = M_2 * torch.eye(M_2.size(-1), device=M_2.device)
 
     prior = torch.matmul(M_2, sensitivity_h)
     prior = torch.matmul(sensitivity, prior)
-    prior = torch.matmul(M_2, torch.matmul(sensitivity_h, torch.inverse(prior + noise_cov)))
+    prior = torch.matmul(
+        M_2, torch.matmul(sensitivity_h, torch.inverse(prior + noise_cov))
+    )
 
     prior = alias_sign.T * prior
 
@@ -104,7 +117,9 @@ def slice_wise_kt_sense(kt_acq: torch.Tensor, kt_trn: torch.Tensor, csm: torch.T
 
     xf_bln = k2x(kt_bln, norm=fft_norm) * n_freq
 
-    xf_bln = sense(data=xf_bln[None], csm=csm[None], noise_cov=noise_cov, acceleration_rate=1)[0]
+    xf_bln = sense(
+        data=xf_bln[None], csm=csm[None], noise_cov=noise_cov, acceleration_rate=1
+    )[0]
 
     xf_recon[0, n_freq // 2] = xf_bln[0, 0]
     xt_recon = f2t(xf_recon, norm=fft_norm)
@@ -113,8 +128,15 @@ def slice_wise_kt_sense(kt_acq: torch.Tensor, kt_trn: torch.Tensor, csm: torch.T
     return kt_recon
 
 
-def kt_sense(kt_acq: torch.Tensor, kt_trn: torch.Tensor, csm: torch.Tensor, noise_cov: torch.Tensor,
-                    lambda_0: float = 0.0014, real_prior: bool = True, fft_norm: str = None) -> torch.Tensor:
+def kt_sense(
+    kt_acq: torch.Tensor,
+    kt_trn: torch.Tensor,
+    csm: torch.Tensor,
+    noise_cov: torch.Tensor,
+    lambda_0: float = 0.0014,
+    real_prior: bool = True,
+    fft_norm: str = None,
+) -> torch.Tensor:
     r"""kt-SENSE dynamic MRI reconstruction. The function performs dynamic MRI reconstruction from undersampled data
     using densely sampled prior, coil sensitivities and coil noise covariance matrix.
 
@@ -146,8 +168,9 @@ def kt_sense(kt_acq: torch.Tensor, kt_trn: torch.Tensor, csm: torch.Tensor, nois
 
     kt_sampling_slice = kt_acq.sum(dim=(1, -1), keepdims=True) != 0
     kt_sampling = kt_sampling_slice.sum(dim=0) / n_b
-    assert torch.all(kt_sampling_slice[0] == kt_sampling), \
-        f'In case of multiple slices, slices should have the same undersampling pattern'
+    assert torch.all(
+        kt_sampling_slice[0] == kt_sampling
+    ), "In case of multiple slices, slices should have the same undersampling pattern"
     kt_bln = kt_acq.sum(dim=-3, keepdim=True) / kt_sampling.sum(dim=-3, keepdim=True)
     kt_diff = kt_acq - kt_bln * kt_sampling
     xf_diff = kt2xf(kt_diff, norm=fft_norm)
@@ -166,13 +189,13 @@ def kt_sense(kt_acq: torch.Tensor, kt_trn: torch.Tensor, csm: torch.Tensor, nois
     shift_freq = (mask_freq - mask_freq[0]) % n_freq
     alias_sign = torch.sign(xf_sampling[:, mask_freq, mask_H, mask_W].real)
 
-    safety_margin = 1 / lambda_0 ** 0.5
+    safety_margin = 1 / lambda_0**0.5
     scale_factor = safety_margin
 
     xf_recon = torch.zeros_like(xf_prior)
 
     idx_H = torch.arange(int(n_H / n_aliases), device=csm.device)
-    alias_H = ((idx_H.view(1, -1, 1) - shift_H.view(1, 1, -1)) % n_H)
+    alias_H = (idx_H.view(1, -1, 1) - shift_H.view(1, 1, -1)) % n_H
 
     sensitivity = csm[:, :, 0, alias_H].permute(0, 5, 3, 2, 1, 4)
 
@@ -183,14 +206,18 @@ def kt_sense(kt_acq: torch.Tensor, kt_trn: torch.Tensor, csm: torch.Tensor, nois
 
     rho_prior = xf_prior[:, :, alias_freq, alias_H].permute(0, 5, 3, 2, 4, 1)
 
-    M_2 = scale_factor ** 2 * torch.matmul(rho_prior, torch.conj(rho_prior.transpose(-1, -2)))
+    M_2 = scale_factor**2 * torch.matmul(
+        rho_prior, torch.conj(rho_prior.transpose(-1, -2))
+    )
 
     if real_prior:
         M_2 = M_2 * torch.eye(M_2.size(-1), device=M_2.device)
 
     prior = torch.matmul(M_2, sensitivity_h)
     prior = torch.matmul(sensitivity, prior)
-    prior = torch.matmul(M_2, torch.matmul(sensitivity_h, torch.inverse(prior + noise_cov)))
+    prior = torch.matmul(
+        M_2, torch.matmul(sensitivity_h, torch.inverse(prior + noise_cov))
+    )
 
     prior = alias_sign.T * prior
 
@@ -209,4 +236,3 @@ def kt_sense(kt_acq: torch.Tensor, kt_trn: torch.Tensor, csm: torch.Tensor, nois
     kt_recon = x2k(xt_recon, norm=fft_norm)
 
     return kt_recon
-
