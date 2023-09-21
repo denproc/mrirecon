@@ -1,4 +1,4 @@
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 
 from mrirecon.sense import sense
 from mrirecon.kt_sense import kt_sense, slice_wise_kt_sense
